@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Collect the coins!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P"
+      rel="stylesheet"
+    />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/pages/game-play/game-play.css"
+    />
+    <link rel="stylesheet" type="text/css" href="/pages/global.css" />
+  </head>
+  <body>
+    <div id="overlay"><h1>Loading ...</h1></div>
+
+    <div id="game-over-overlay" style="display: none">
+      <div id="game-over-content" style="width: 500px">
+        <h1 style="text-align: center">
+          Game Over
+
+          <h2
+            class="text-danger"
+            style="text-align: center"
+            id="game-over-message"
+          ></h2>
+          <h5
+          class="text-danger"
+          style="text-align: center"
+          id="game-over-description"
+        ></h5>
+        </h1>
+
+        <div style="display: flex; gap: 5px; justify-content: space-between">
+          <div>
+            <h3>Player 1</h3>
+            <h4>
+              <span class="score-1" id="gameover-score-1">Score : _</span>
+              <span class="text-muted>">/30</span>
+            </h4>
+          </div>
+          <div>
+            <h3>Player 2</h3>
+            <h4>
+              <span class="score-2" id="gameover-score-2">Score : _</span>
+              <span class="text-muted">/30</span>
+            </h4>
+          </div>
+        </div>
+
+        <div>
+          <!-- on click go back to /game-rooms -->
+          <button
+            id="quit-btn"
+            class="primary-button"
+            onclick="location.href='/game-rooms'"
+          >
+            Quit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="game-play-area">
+      <div id="player-1-board" class="player-board">
+        <h3 id="player-1">Player 1</h3>
+        <h4>
+          <span class="score-1">Score : 0 </span>
+          <span class="text-muted">/30</span>
+        </h4>
+        <div>
+          Skill :
+          <span id="skill-1"><b class="text-success">Ready to use!</b></span>
+        </div>
+        <div class="description">
+          <p class="cooldown-warning text-danger">Teleporter is on cooldown!</p>
+          <p class="trap-status text-danger">Trapped!</p>
+          <p class="coin-notification text-success">Coin collected (+1)</p>
+          <p class="hit text-success">You have hit the enemy! (+5)</p>
+          <p class="miss text-danger">You missed!</p>
+          <p class="get-hit text-danger">You were hit by the enemy!</p>
+          <p class="cheat text-danger">Fallen to the dark...</p>
+          <p class="get-hit-cheat text-danger">Embrace the shadow...</p>
+          <p class="trap-cheat text-danger">Embrace the shadow...</p>
+          <p class="get-hit-cheat text-danger">You Miss...</p>
+        </div>
+      </div>
+      <div id="game-container">
+        <canvas width="864px" height="648px"></canvas>
+
+        <svg xmlns="http://www.w3.org/2000/svg" id="counter">
+          <text x="10" y="35">
+            TIME:
+            <tspan id="time-remaining">4:00</tspan>
+          </text>
+        </svg>
+      </div>
+
+      <div id="player-2-board" class="player-board">
+        <h3 id="player-2">Player 2</h3>
+        <h4>
+          <span class="score-2">Score : 0 </span>
+          <span class="text-muted">/30</span>
+        </h4>
+        <div>
+          Skill :
+          <span id="skill-2"><b class="text-success">Ready to use!</b></span>
+        </div>
+        <div class="description">
+          <p class="cooldown-warning text-danger">Teleporter is on cooldown!</p>
+          <p class="trap-status text-danger">Trapped!</p>
+          <p class="coin-notification text-success">Coin collected (+1)</p>
+          <p class="hit text-success">You have hit the enemy! (+5)</p>
+          <p class="miss text-danger">You missed!</p>
+          <p class="get-hit text-danger">You were hit by the enemy!</p>
+          <p class="cheat text-danger">Fallen to the dark...</p>
+          <p class="get-hit-cheat text-danger">Embrace the shadow...</p>
+          <p class="trap-cheat text-danger">Embrace the shadow...</p>
+          <p class="hit-cheat text-danger">You Miss...</p>
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="scripts/socket.js"></script>
+    <script src="scripts/game-play/bounding_box.js"></script>
+    <script src="scripts/game-play/sprite.js"></script>
+    <script src="scripts/authentication.js"></script>
+
+    <!-- IMPORT CONSTANT -->
+    <script src="scripts/game-play/constants/movement_sequences.js"></script>
+    <script src="scripts/game-play/constants/attack_right_sequences.js"></script>
+    <script src="scripts/game-play/constants/death_sequences.js"></script>
+
+    <!-- helpers -->
+    <script src="scripts/game-play/player/player_movements.js"></script>
+    <script src="scripts/game-play/player/player_events.js"></script>
+    <script src="scripts/game-play/player/keyboard_handler.js"></script>
+    <script src="scripts/game-play/player/socket_movement_handler.js"></script>
+    <!-- IMPORT GAME PLAY RELATED -->
+    <script src="scripts/game-play/player.js"></script>
+    <script src="scripts/game-play/sound.js"></script>
+    <script src="scripts/game-play/coin.js"></script>
+    <script src="scripts/game-play/platform.js"></script>
+    <script src="scripts/game-play/floor.js"></script>
+    <script src="scripts/game-play/transporter.js"></script>
+    <script src="/socket.io/socket.io.min.js"></script>
+    <script src="scripts/game-play/trap.js"></script>
+
+    <script src="scripts/multiplayer/gameroom_config.js"></script>
+    <script src="scripts/multiplayer/gameobjects_config.js"></script>
+    <script src="scripts/ui/game-rooms.js"></script>
+    <!-- util -->
+    <script src="pages/game-play/util/notification.js"></script>
+    <script src="pages/game-play/util/countdown.js"></script>
+
+    <script>
+      $(function () {
+        let isGameEnd = false;
+        let loadScreenDone = false;
+        let roomNum = null;
+        let playerSlot = null;
+        const maxScore = 30;
+        const totalGameTime = 240; // Total game time in seconds
+        let initComplete = false;
+        let hasInteracted = false;
+        let playerStartPosInit = false;
+        let timePrevious = 0;
+        Authentication.validate(
+          () => {
+            console.log("User is signed in.");
+            Socket.connect();
+            Socket.getGameConfig();
+          },
+          () => {
+            console.log("User is not signed in.");
+            alert("You are not signed in. Redirecting to sign in page...");
+            window.location.href = "/";
+          }
+        );
+
+        /* Get the canvas and 2D context */
+        const cv = $("canvas").get(0);
+        const context = cv.getContext("2d");
+
+        //** All of this should be updated through websocket in do frame
+        let gameStartTime = 0; // The timestamp when the game starts
+        let collectedcoins = 0; // The number of coins collected in the game
+        let transporterCooldown = 3500; // The cooldown for using the transporter
+        let transporterTimeStamp = 0;
+        const setTransporterTimeStamp = (time) => {
+          transporterTimeStamp = time;
+        };
+
+        /* Create the game area */
+        const gameArea = BoundingBox(context, -100, 0, 615, 864);
+        const objectArea = BoundingBox(context, 8, 8, 580, 850);
+
+        /* Create the sprites in the game */
+
+        const floor = Floor(context, 0, 611);
+
+        const coordinates = [
+          { x: 74, y: 532 },
+          { x: 28, y: 532 },
+          { x: 33, y: 223 },
+          { x: 33, y: 103 },
+          { x: 178, y: 463 },
+          { x: 178, y: 392 },
+          { x: 178, y: 295 },
+          { x: 178, y: 151 },
+          { x: 321, y: 343 },
+          { x: 321, y: 223 },
+          { x: 321, y: 103 },
+          { x: 465, y: 295 },
+          { x: 465, y: 151 },
+          { x: 682, y: 511 },
+          { x: 682, y: 415 },
+          { x: 682, y: 321 },
+          { x: 682, y: 223 },
+          { x: 753, y: 103 },
+          { x: 608, y: 103 },
+          { x: 58, y: 343 },
+        ];
+
+        const platforms = coordinates.map(
+          (coord) => new Platform(context, coord.x, coord.y)
+        ); // The platforms
+
+        let colliders = new Array(platforms.length + 1).fill(false); // The colliders
+
+        //Should decide position base on which player
+        const player1 = Player(context, 215, 580, gameArea, 1); // The player
+        const player2 = Player(context, 412, 580, gameArea, 2); // The player
+        let playerInstance = null;
+        let opponentInstance = null;
+        let myScore = 0;
+        let opponentScore = 0;
+
+        //Coin coordinates should store in server
+        const coin = Coin(context, -100, -100); // The coin
+
+        let transporters = {
+          1: Transporter(context, -5, -5),
+          2: Transporter(context, -5, -5),
+        };
+
+        const trap = Trap(context, -5, -5); // The trap
+
+        /* The main processing of the game */
+        function doFrame(now) {
+          if (!initComplete) {
+            ({ roomNum, playerSlot } = GameroomConfig.getConfig());
+            if (roomNum && playerSlot) {
+              initComplete = true;
+              $("#overlay").hide();
+
+              // Set player instance based on playerSlot
+              playerInstance = playerSlot === 2 ? player2 : player1;
+              opponentInstance = playerSlot === 2? player1: player2;
+              // Set board colors and player names based on playerSlot
+              const isPlayer1 = playerSlot === 1;
+              $("#player-1-board").css(
+                "background-color",
+                isPlayer1 ? "rgba(0, 0, 255, 0.8)" : "rgba(106, 0, 30, 1)"
+              );
+              $("h3#player-1").text(isPlayer1 ? "Me" : "Enemy");
+
+              $("#player-2-board").css(
+                "background-color",
+                isPlayer1 ? "rgba(106, 0, 30, 1)" : "rgba(0, 0, 255, 0.8)"
+              );
+              $("h3#player-2").text(isPlayer1 ? "Enemy" : "Me");
+              
+              $(window).on('focus', function() {
+                loadScreenDone = false
+                console.log("Back to focus")
+              });
+
+              Socket.checkGameEnd(roomNum, playerSlot) // Must trigger game stat at least once to handle game end
+            }
+          }
+
+          if (initComplete) {
+            if (GameObjectsConfig.hasUpdate()) {
+              let {
+                gameStartTime,
+                coinCoord,
+                teleporterCoord,
+                trapCoord,
+                playerCoord,
+                score,
+                isGameEnd,
+                playerCheating
+              } = GameObjectsConfig.getConfig();
+
+              updateCounter(gameStartTime)
+
+              if(isGameEnd){
+                endGame()
+                return
+              }
+
+              player1.cheatToggle(playerCheating[1]);
+              player2.cheatToggle(playerCheating[2]);
+
+              coin.setXY(coinCoord.x, coinCoord.y);
+              for (let i = 1; i <= 2; ++i) {
+                transporters[i].setXY(
+                  teleporterCoord[i].x,
+                  teleporterCoord[i].y
+                );
+              }
+              trap.setXY(trapCoord.x, trapCoord.y);
+              if(!loadScreenDone){
+                player1.setXY(playerCoord[1].x, playerCoord[1].y);
+                player2.setXY(playerCoord[2].x, playerCoord[2].y);
+                loadScreenDone = true;
+              }
+
+              playerStartPosInit = true
+
+              const { score1, score2 } = score;
+              myScore = playerSlot===2? score2:score1
+              opponentScore = playerSlot===2? score1:score2
+              $(".score-1").text("Score: " + score1);
+              $(".score-2").text("Score: " + score2);
+            }
+
+            /* Update the sprites */
+            coin.update(now);
+
+            player1.update(now);
+            player2.update(now);
+            player1.udpateAttackRight(now);
+            player2.udpateAttackRight(now);
+            player1.udpateAttackLeft(now);
+            player2.udpateAttackLeft(now);
+            player1.updateTakeHit(now);
+            player2.updateTakeHit(now);
+
+            transporters[1].update(now);
+            transporters[2].update(now);
+            trap.update(now);
+            
+            // Prevent initializing postion when game stat is not completely loaded
+            if(playerStartPosInit){
+              playerInstance.updateSocketPlayerMovement(roomNum, playerSlot);
+            }
+
+            const isCooldown = playerInstance.getIsAttackCooldown();
+            const cooldownTxt = isCooldown ? "Cooling" : "Ready to use!";
+            const $skill = $(`#skill-${playerSlot}`);
+
+            $skill.text(cooldownTxt);
+            $skill.toggleClass("text-danger", isCooldown);
+            $skill.toggleClass("text-success", !isCooldown);
+
+            if (hasInteracted) {
+              if (player1.getIsCheating() || player2.getIsCheating()) {
+                Sounds.playBGM("bgmCheat", 0.5);
+              } else {
+                Sounds.playBGM("bgm", 0.5);
+              }
+            }
+
+            handleGameEvents(
+              player1,
+              player2,
+              coin,
+              trap,
+              transporters,
+              platforms,
+              floor,
+              colliders,
+              now,
+              transporterTimeStamp,
+              transporterCooldown,
+              setTransporterTimeStamp
+            );
+            handleGameEvents(
+              player2,
+              player1,
+              coin,
+              trap,
+              transporters,
+              platforms,
+              floor,
+              colliders,
+              now,
+              transporterTimeStamp,
+              transporterCooldown,
+              setTransporterTimeStamp
+            );
+
+            /* Clear the screen */
+            context.clearRect(0, 0, cv.width, cv.height);
+
+            /* Draw the sprites */
+            coin.draw();
+            player1.draw();
+            player2.draw();
+
+            transporters[1].draw();
+            transporters[2].draw();
+            trap.draw();
+          }
+
+          requestAnimationFrame(doFrame);
+        }
+
+        const endGame = function () {
+          Sounds.stopBGM();
+          if (myScore > opponentScore) {
+            Sounds.play("win");
+          } else {
+            Sounds.play("lose");
+          }
+        };
+
+        $(document).on("keydown", function (event) {
+          hasInteracted = true;
+          handleKeydown(
+            event,
+            playerInstance,
+            roomNum,
+            playerSlot,
+            initComplete
+          );
+        });
+
+        /* Handle the keyup of arrow keys and spacebar */
+        $(document).on("keyup", function (event) {
+          handleKeyup(event, roomNum, playerSlot, playerInstance);
+        });
+
+        const playerEventSocket = io();
+        if (playerEventSocket) {
+          playerEventSocket.on("game keys event", (message) => {
+            handlePlayerMovementSocket(player1, player2, message);
+          });
+        }
+
+        $(document).on("click", function (event) {
+          console.log("===========info============");
+          console.log("I am Player: ", playerInstance.getPlayerSlot());
+          const canvas = document.getElementById("game-container"); // replace 'your-canvas-id' with your actual canvas id
+
+          const rect = canvas.getBoundingClientRect();
+          const x = event.clientX - rect.left;
+          const y = event.clientY - rect.top;
+
+          console.log("x: " + x + " y: " + y);
+          console.log(`My Coordinates x${playerInstance.getXY().x} y${playerInstance.getXY().y}`)
+          console.log("========end of info=========");
+        });
+
+        /* Start the game */
+        requestAnimationFrame(doFrame);
+
+        // for quiting game
+        $("#quit-btn").on("click", function () {
+          Socket.quitGame(roomNum, playerSlot);
+        });
+      });
+    </script>
+  </body>
+</html>

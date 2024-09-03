@@ -1,0 +1,153 @@
+#overlay {
+  /* cover the whole screen */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#game-over-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  #game-over-content {
+    padding: 1rem;
+    border-radius: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+#game-play-area {
+  display: flex;
+  justify-content: space-between;
+}
+
+.player-board {
+  /* fixed on the left of the window */
+  /* position: fixed;
+  left: 0;
+  top: 0; */
+
+  background: #4b4b4b;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  flex: 1;
+}
+
+.description {
+  background-color: white;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  border-width: 1px;
+  border-style: solid;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  display: flex;
+  /* align-items: center; */
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+
+  p {
+    display: none;
+  }
+}
+
+body {
+  font-family: "Press Start 2P", sans-serif;
+}
+#game-container {
+  position: relative;
+  flex: 2;
+}
+
+canvas,
+#counter,
+#game-start,
+#game-over {
+  top: 0px;
+  left: 0px;
+}
+
+canvas,
+#game-start,
+#game-over,
+#counter {
+  width: 864px;
+  height: 648px;
+}
+
+#game-start,
+#game-over,
+#counter {
+  position: absolute;
+}
+
+canvas {
+  background: url(/assets/background.png);
+  background-size: cover;
+}
+
+#game-start,
+#game-over {
+  background: rgba(1, 1, 1, 0.8);
+}
+
+#counter text {
+  font-size: 130%;
+  fill: white;
+  stroke: black;
+  stroke-width: 1px;
+}
+
+#game-start text {
+  font-size: 150%;
+  fill: white;
+  text-anchor: middle;
+}
+
+#game-start #game-title {
+  font-size: 400%;
+  fill: url(#title-fill);
+  stroke: black;
+}
+
+#game-over-text {
+  font-size: 800%;
+  fill: url(#game-over-fill);
+  text-anchor: middle;
+}
+
+#leave-button {
+  font-size: 200%;
+  fill: url(#game-over-fill);
+  text-anchor: middle;
+  cursor: pointer;
+}
+
+.cheat{
+  font-size: 150%;
+  font-weight: bold; /* This will make the text bold */
+  background-color: #000000; /* This will change the background color */
+
+}
